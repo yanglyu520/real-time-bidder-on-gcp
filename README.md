@@ -4,34 +4,15 @@
 This document outlines the infrastructure architecture design for a real-time bid optimization application. The purpose is to provide a high-level overview of the desired architecture.
 
 ## 2. Purpose
-The primary goal of this document is to evaluate the design of a scalable, efficient, and secure infrastructure architecture for a real-time bid optimization application. The design should address key challenges such as data ingestion, transformation, storage, real-time processing, and integration with external systems like Google Ads.
+The primary goal of this document is to evaluate the design of a scalable, efficient, and secure infrastructure architecture for a real-time bid optimization application. 
+The design should address key challenges such as data ingestion, transformation, storage, real-time processing, and integration with external systems like Google Ads.
 
-## 3. Scope
-The scope of this task includes:
-
-- **Data Ingestion:** Design the architecture for ingesting data from multiple sources, such as user interactions, market data, and historical bidding performance.
-- **Data Transformation:** Define the process for transforming raw data into a format suitable for real-time processing and analysis.
-- **Data Storage:** Design the storage architecture using Google Cloud BigQuery, ensuring scalability and low-latency access to data.
-- **Real-Time Processing:** Develop an approach for real-time bid optimization, considering factors like latency, accuracy, and the ability to handle large volumes of data.
-- **Integration with Google Ads:** Design the integration process to synchronize optimized bids with Google Ads in real-time.
-- **Security and Compliance:** Address security measures, including data encryption, access control, and compliance with relevant regulations (e.g., GDPR).
-- **Monitoring and Maintenance:** Propose a monitoring and maintenance strategy to ensure system reliability and performance.
-
-## 4. Requirements
-
-### 4.1 Technical Specifications
-- **Google Cloud Platform (GCP):** Use GCP services, such as BigQuery, Pub/Sub, Dataflow, and AI/ML tools.
-- **Containerization:** Consider the use of containerization (e.g., Docker, Kubernetes) for deploying microservices.
-- **Scalability:** Design for scalability to handle varying loads of bid requests and data ingestion.
-- **Low-Latency:** Ensure low-latency processing to enable real-time bid adjustments.
-
-### 4.2 Design Decisions
-- **Technology Choices:** Justify the choice of technologies, tools, and design patterns.
-- **Trade-Offs:** Highlight trade-offs between different design options.
-- **Impact Analysis:** Consider the impact of the design on system performance, scalability, and cost.
-
-## 5. High-Level Architecture Diagram
+## 3. High-Level Architecture Diagram
 [Include a visual representation of the architecture here.]
+
+## 4. High-Level App logic and Data Flow
+[Include a visual representation of the architecture here.]
+
 
 ## 6. Key Component Explanations
 ### 6.1 Data Ingestion
