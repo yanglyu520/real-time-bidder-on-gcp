@@ -3,7 +3,7 @@
 ## Overview
 
 This guide outlines the architecture and design of a real-time bidding (RTB) application on Google Cloud Platform (GCP). The system is built to process high-volume ad requests with minimal latency, ensuring scalability, security, and compliance.
-![Higher Architecture overview](./architecture.png)
+![Higher Architecture overview](researchArchived/architecture.png)
 
 ## Architecture Modules
 
