@@ -1,93 +1,109 @@
-# Real-Time Bid Optimization Architecture Documentation
+# Real-Time Bidder Application on Google Cloud Platform (GCP)
 
-## 1. Introduction
-This document outlines the infrastructure architecture design for a real-time bid optimization application, providing a high-level overview of the architecture.
+## Overview
 
-## 2. Purpose
-The goal is to design a scalable, efficient, and secure infrastructure for a real-time bid optimization application, addressing challenges such as data ingestion, transformation, storage, real-time processing, and integration with external systems like Google Ads.
+This guide outlines the architecture and design of a real-time bidding (RTB) application on Google Cloud Platform (GCP). The system is built to process high-volume ad requests with minimal latency, ensuring scalability, security, and compliance.
+![Higher Architecture overview](./architecture.png)
 
-## 3. High-Level Architecture Diagram
-[Include a visual representation of the architecture here.]
+## Architecture Modules
 
-## 4. High-Level App Logic and Data Flow
-[Include a visual representation of the data flow here.]
+### 1. Data Ingestion
 
-## 5. Key Component Explanations
+#### **Components**
+- **Pub/Sub**: Core messaging service for ingesting data asynchronously from various sources.
+- **Streaming Data**: Ingests real-time user interactions and market data.
+- **Batch Data**: Periodically ingested historical and less time-sensitive data.
 
-### 5.1 Data Ingestion
-The data ingestion architecture captures data from various sources for real-time processing.
+#### **Interaction**
+- Pub/Sub ingests streaming and batch data, distributing it to DataFlow for processing.
 
-- **User Interactions:** Real-time capture of clicks, views, sessions.
-- **Market Data:** Continuous ingestion of bid requests, inventory, competitor bids.
-- **Historical Performance:** Batch ingestion for model refinement.
+### 2. Data Transformation
 
-**Architecture:**
-- **Dataflow:** Handles both batch and streaming data for timely availability.
-- **Pub/Sub:** Decouples producers and consumers for scalable data delivery.
-- **Data Quality:** Automated checks ensure data integrity before processing.
+#### **Components**
+- **DataFlow**: Handles ETL (Extract, Transform, Load) operations, converting raw data into a structured format.
 
-### 5.2 Data Transformation
-Data transformation converts raw data into usable formats for analysis and bidding.
+#### **Interaction**
+- DataFlow processes incoming data from Pub/Sub and prepares it for storage in BigQuery and Bigtable.
 
-- **Cleaning:** Removes duplicates and corrects errors.
-- **Enrichment:** Adds contextual data (e.g., demographics, geolocation).
-- **Aggregation:** Summarizes data for quick access.
-- **Format Conversion:** Transforms data into formats like Avro or Parquet for BigQuery.
+### 3. Data Storage
 
-### 5.3 Data Storage
-The storage architecture focuses on scalability and low-latency access.
+#### **Components**
+- **Bigtable**: NoSQL database optimized for low-latency, high-throughput operations.
+- **BigQuery**: Scalable, serverless data warehouse for large-scale data analysis.
 
-- **BigQuery:** Scales automatically for large datasets and provides sub-second query response times. Uses partitioning and clustering for optimization.
-- **GCS:** Utilizes Coldline/Nearline for cost-effective long-term storage, with data retention policies to ensure compliance.
+#### **Interaction**
+- Bigtable stores real-time bidding data, while BigQuery holds processed data for analytics and reporting.
 
-### 5.4 Real-Time Processing
+### 4. Real-Time Processing
 
-**Key Infrastructure Decisions:**
+#### **Components**
+- **GKE (Google Kubernetes Engine)**: Orchestrates containerized bidder pods.
+  - **Bidder Pods**: Run the bidding logic.
+  - **Decision Engine**: Executes real-time bid decisions using data from Bigtable.
 
-- **GKE:** Chosen for its scalability, flexibility, and orchestration capabilities. Ideal for microservices, with autoscaling to handle varying loads.
-  - **Pros:** Scales efficiently, supports microservices, high availability.
-  - **Cons:** Requires Kubernetes expertise, potential cost increases.
+#### **Interaction**
+- GKE hosts the bidder pods that process bid requests from the Google RTB API, accessing data from Bigtable to optimize bids.
 
-- **Bigtable:** Selected over SQL for its low latency and scalability, handling large, fast-moving datasets typical in real-time bidding.
-  - **Pros:** High throughput, scales horizontally, flexible schema-less design.
-  - **Cons:** Complex schema design, eventual consistency.
+### 5. Integration with Google Ads
 
-- **Memorystore (Redis):** Provides sub-millisecond latency for caching, ensuring rapid access to frequently used data, supporting high-speed bid decisions.
+#### **Components**
+- **Google RTB API**: Interfaces for receiving and responding to real-time bid requests.
+- **App Engine**: Hosts custom services for integration with Google Ads and other platforms.
 
-### 5.5 Security and Compliance
+#### **Interaction**
+- Bidder pods respond to real-time bid requests, ensuring synchronized bid submission to ad exchanges and Google Ads.
 
-- **Data Encryption:** AES-256 for data at rest, TLS for data in transit.
-- **Access Control:** IAM and MFA enforce strict access policies.
-- **Network Security:** VPCs and firewall rules limit access, private endpoints reduce exposure.
-- **Auditing:** Cloud Audit Logs monitor access and actions for compliance.
+### 6. Security and Compliance
 
-**Compliance Standards:**
-- **GDPR:** Ensures lawful data processing and protection of data subjects’ rights.
-- **SOC 2:** Adheres to security, availability, and confidentiality standards.
+#### **Components**
+- **IAM (Identity and Access Management)**: Controls access to GCP resources, enforcing the principle of least privilege.
+- **Cloud Key Management Service (KMS)**: Manages encryption keys for data at rest.
+- **VPC Service Controls**: Establishes security perimeters around GCP resources.
+- **Google Monitoring**: Tracks security events and audit logs.
 
-### 5.6 Monitoring and Maintenance
+#### **Interaction**
+- Data is encrypted both at rest and in transit using managed keys. IAM roles restrict access, and VPC Service Controls and Google Monitoring ensure compliance and security.
 
-- **Google Cloud Monitoring:** Real-time metrics and alerting for issue detection.
-- **Google Cloud Logging:** Centralized log management for troubleshooting.
-- **Prometheus & Grafana:** Custom metrics and dashboards with alerting.
+### 7. Monitoring and Maintenance
 
-**Maintenance Strategies:**
-- **Automated Backups:** Regular backups with disaster recovery plans.
-- **Autoscaling:** GKE dynamically scales resources, optimizing costs.
-- **Software Updates:** Automated and rolling updates minimize downtime.
+#### **Components**
+- **Google Monitoring**: Monitors system health and performance metrics.
+- **Cloud Logging**: Captures operational logs for visibility and troubleshooting.
+- **Cloud Build**: Automates the CI/CD pipeline.
+- **BigQuery and Bigtable Backups**: Regular backups ensure data integrity and disaster recovery.
 
-## 6. Challenges and Mitigations
+#### **Interaction**
+- Google Monitoring and Cloud Logging track performance and security. Cloud Build automates deployments, and regular backups safeguard data.
 
-- **High Latency in Data Processing:**
-  - **Mitigation:** Use Dataflow for real-time streaming and BigQuery for optimized query performance.
-- **Scalability During Traffic Spikes:**
-  - **Mitigation:** Leverage GKE’s autoscaling and Pub/Sub for independent scaling.
-- **Data Security:**
-  - **Mitigation:** Implement encryption, IAM, MFA, and regular audits.
+## Potential Challenges and Mitigation Strategies
 
-## 7. Conclusion
-This architecture design provides a robust, scalable, and secure infrastructure for a real-time bid optimization application. By leveraging GCP services like GKE, Bigtable, and Dataflow, the system is optimized for performance, scalability, and cost-effectiveness, ready for deployment in a demanding real-time environment.
+### 1. Latency
+- **Challenge**: RTB systems require ultra-low latency.
+- **Mitigation**:
+  - Use **Network Load Balancer** for efficient traffic distribution.
+  - Leverage **Bigtable** for low-latency data access.
+  - **Regional Deployment** minimizes data travel time.
 
----
+### 2. Scalability
+- **Challenge**: Handling fluctuating traffic loads.
+- **Mitigation**:
+  - **GKE Autoscaling** adjusts bidder pods based on traffic.
+  - **Pub/Sub** and **DataFlow** automatically scale with data volume.
 
-This version is designed to fit within three pages, focusing on key points and clear, concise explanations.
+### 3. Security and Compliance
+- **Challenge**: Ensuring data security and regulatory compliance.
+- **Mitigation**:
+  - **Encryption** at rest and in transit with Cloud KMS.
+  - **IAM** roles and **VPC Service Controls** for access control.
+  - **GDPR Compliance** with data anonymization and access management.
+
+### 4. Cost Management
+- **Challenge**: Managing high-availability system costs.
+- **Mitigation**:
+  - Use **Preemptible VMs** for non-critical tasks.
+  - **Cloud Storage Tiers** for cost-effective data storage.
+  - **Monitoring** for resource optimization and cost alerts.
+
+## Conclusion
+
+This real-time bidding application on GCP is engineered for performance, scalability, and security. The architecture leverages GCP’s powerful services to ensure low-latency processing, high availability, and robust compliance with industry regulations.

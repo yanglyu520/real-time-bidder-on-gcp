@@ -1,4 +1,4 @@
-### 6.6 Security and Compliance
+# Security and Compliance
 
 In a real-time bidding application, security and compliance are critical due to the sensitive nature of data and the high value of the transactions involved. Below are the key measures and standards implemented:
 
